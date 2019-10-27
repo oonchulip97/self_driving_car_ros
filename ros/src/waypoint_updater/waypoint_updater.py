@@ -3,6 +3,7 @@
 import rospy
 import numpy as np
 from geometry_msgs.msg import PoseStamped
+from std_msgs.msg import Int32
 from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
 
@@ -24,6 +25,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 25 # Number of waypoints we will publish. You can change this number
+MAX_DECEL = 0.5
 
 
 class WaypointUpdater(object):
@@ -51,8 +53,7 @@ class WaypointUpdater(object):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             if self.pose and self.base_waypoints:
-                closest_waypoint_idx = self.get_closest_waypoint_idx()
-                self.publish_waypoints(closest_waypoint_idx)
+                self.publish_waypoints()
             rate.sleep()
 
     def get_closest_waypoint_idx(self):
@@ -81,24 +82,24 @@ class WaypointUpdater(object):
 
         closest_idx = self.get_closest_waypoint_idx()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
-        published_waypoints = self.base_waypoints.waypoints[closest_idx: farthest_idx]
+        local_waypoints = self.base_waypoints.waypoints[closest_idx: farthest_idx]
 
         if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
-            lane.waypoints = published_waypoints
+            lane.waypoints = local_waypoints
         else:
-            lane.waypoints = self.decelerate_waypoints(published_waypoints, closest_idx)
+            lane.waypoints = self.decelerate_waypoints(local_waypoints, closest_idx)
 
         return lane
 
-    def decelerate_waypoints(self, waypoints, closest_idx):
+    def decelerate_waypoints(self, local_waypoints, closest_idx):
         temp = []
-        for i, wp in enumerate(waypoints):
+        for i, wp in enumerate(local_waypoints):
 
             p = Waypoint()
             p.pose = wp.pose
 
-            stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0) # Ensure car's tip does not overshoot stop line
-            dist = self.distance(waypoints, i, stop_idx)
+            local_stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0) # Ensure car's tip does not overshoot stop line
+            dist = self.distance(local_waypoints, i, local_stop_idx)
             vel = math.sqrt(2 * MAX_DECEL * dist)
             if vel < 1.0:
                 vel = 0.0
