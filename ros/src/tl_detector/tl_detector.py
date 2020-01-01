@@ -109,7 +109,7 @@ class TLDetector(object):
 
         """
         #TODO implement
-        closest_idx = self.waypoints_tree.query([x, y, 1][1])
+        closest_idx = self.waypoints_tree.query([x, y], 1)[1]
         return closest_idx
 
     def get_light_state(self, light):
@@ -138,7 +138,8 @@ class TLDetector(object):
             location and color
 
         Returns:
-            int: index of waypoint closes to the upcoming stop line for a traffic light (-1 if none exists) int: ID of traffic light color (specified in styx_msgs/TrafficLight)
+            int: index of waypoint closes to the upcoming stop line for a traffic light (-1 if none exists)
+            int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
         closest_light = None
