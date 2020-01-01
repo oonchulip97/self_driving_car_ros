@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-    <param name="traffic_light_config" value="$(find tl_detector)/sim_traffic_light_config.yaml"
+  <param name="traffic_light_config" value="$(find tl_detector)/sim_traffic_light_config.yaml" />
     <node pkg="tl_detector" type="tl_detector.py" name="tl_detector" output="screen" cwd="node"/>
 </launch>
