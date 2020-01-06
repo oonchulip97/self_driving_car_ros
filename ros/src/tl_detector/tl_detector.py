@@ -36,7 +36,7 @@ class TLDetector(object):
         rely on the position of the light and the camera image to predict it.
         '''
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
+        sub4 = rospy.Subscriber('/image_color', Image, self.image_cb)
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
@@ -108,7 +108,7 @@ class TLDetector(object):
             int: index of the closest waypoint in self.waypoints
 
         """
-        #TODO implement
+        #TODO Implement
         closest_idx = self.waypoints_tree.query([x, y], 1)[1]
         return closest_idx
 
@@ -122,16 +122,16 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-        return light.state
+        # Used for training only
+        # return light.state
 
-        #if(not self.has_image):
-        #    self.prev_light_loc = None
-        #    return False
+        if (not self.has_image):
+            return TrafficLight.UNKNOWN
 
-        #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
-        ##Get classification
-        #return self.light_classifier.get_classification(cv_image)
+        # Get classification
+        return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -147,10 +147,10 @@ class TLDetector(object):
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
-        if(self.pose):
+        if (self.pose):
             car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
 
-            # TODO find the closest visible traffic light (if one exists)
+            # TODO Find the closest visible traffic light (if one exists)
             diff = len(self.waypoints.waypoints)
             for i, light in enumerate(self.lights):
                 # Get stop line waypoint index
