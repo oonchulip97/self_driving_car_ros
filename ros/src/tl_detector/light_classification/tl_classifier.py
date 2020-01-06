@@ -44,7 +44,7 @@ class TLClassifier(object):
         self.__model_loaded = False
         self.tf_session = None
         self.prediction = None
-        self.path_to_model = '../../../deep_learning/models/frozen_graphs/'
+        self.path_to_model = './models/'
 
         self.load_model(is_site)
 
