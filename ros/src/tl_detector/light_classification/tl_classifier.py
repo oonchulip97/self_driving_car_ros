@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-import os
 import rospy
 import rospkg
-import sys
-import time
 import numpy as np
 import tensorflow as tf
 from styx_msgs.msg import TrafficLight
@@ -44,12 +41,11 @@ class TLClassifier(object):
         self.__model_loaded = False
         self.tf_session = None
         self.prediction = None
-        self.path_to_model = './models/'
+        self.path_to_model = rospkg.RosPack().get_path('tl_detector') + '/light_classification/models/'
 
         self.load_model(is_site)
 
     def load_model(self, is_site):
-        detect_path = rospkg.RosPack().get_path('tl_detector')
         if is_site:
            self.path_to_model += 'real_mobilenets_ssd_38k_epochs_frozen_inference_graph.pb'
         else:
